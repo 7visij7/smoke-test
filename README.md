@@ -21,8 +21,8 @@
 
 ## Build and run application
 ```Bash
-go build -o notification-center
-./notification-center
+go build -o smoke-tests
+./smoke-tests
 ```
 ---
 ## Docker
