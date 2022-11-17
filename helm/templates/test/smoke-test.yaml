@@ -1,0 +1,29 @@
+{{ $version := .Chart.Version }}
+{{ $releaseName := .Release.Name }}
+{{ $values := .Values }}
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ $releaseName }}-smoke-test"
+  labels:
+    name: {{ $releaseName }}
+    {{ include "labels" . | nindent 4}}
+  annotations:
+    "helm.sh/hook": test-success, post-upgrade, post-install
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  backoffLimit: 1
+  template:
+      spec:
+        imagePullSecrets:
+          - name: {{ $values.image_pull_secrets_name }}
+        containers:
+          - name: helm-smoke-tests
+            image: {{ template "image-smoke-test" . }}
+            imagePullPolicy: Always
+            env:
+              - name: SMOKE_URL
+                value: https://{{ $releaseName }}-{{ $values.host }}
+        restartPolicy: Never
